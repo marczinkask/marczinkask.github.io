@@ -128,7 +128,7 @@ function attachCommentsToParent() {
   let commentNodes = [];
   for (let i = 0; i < comments.length; i++) {
     commentNodes[i] = renderComment(comments[i]);
-    if (comments[i].parentId != ("p1" || "p2" || "p3")) {
+    if (!(comments[i].parentId == "p2" || comments[i].parentId == "p1" || comments[i].parentId == "p3")) {
       commentNodes[i].className = "dialogbox-reply";
     }
   }

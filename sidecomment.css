@@ -6,6 +6,7 @@
 .commentable-section {
   width: 80%;
   position: relative;
+  height: 300px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -13,7 +14,7 @@
 }
 
 .dialogbox {
-  position: relative;
+  position: static;
   margin-left: 110%;
   height: auto;
   width: 120px;
