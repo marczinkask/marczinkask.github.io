@@ -14,7 +14,8 @@
 }
 
 .dialogbox {
-  position: static;
+  display: none;
+  position: relative;
   margin-left: 110%;
   height: auto;
   width: 120px;
@@ -25,6 +26,7 @@
 }
 
 .dialogbox-reply {
+  display: none;
   position: relative;
   margin-top: 10%;
   height: auto;
