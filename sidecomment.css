@@ -4,7 +4,7 @@
 }
 
 .commentable-section {
-  width: 80%;
+  width: 600px;
   position: relative;
   height: 300px;
   -webkit-box-sizing: border-box;
@@ -13,9 +13,14 @@
   padding-right: 30px;
 }
 
+.left {
+  float: left;
+  width: 300px;
+  z-index: 1;
+}
+
 .dialogbox {
   display: none;
-  position: relative;
   margin-left: 110%;
   height: auto;
   width: 120px;
@@ -25,8 +30,11 @@
   border: 5px solid #ccc;
 }
 
+.innerdiv {
+  margin-left: 250%;
+}
+
 .dialogbox-reply {
-  display: none;
   position: relative;
   margin-top: 10%;
   height: auto;
@@ -56,10 +64,6 @@
   font-size: 14px;
   line-height: 1.5;
   color: #797979;
-}
-
-.addCommentButton {
-  margin-left: 80%;
 }
 
 .status-upload {

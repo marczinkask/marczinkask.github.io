@@ -1,26 +1,46 @@
 const elems = document.querySelectorAll(".commentable-section");
 const allElems = document.body.getElementsByTagName("*");
+var showComments = JSON.parse(localStorage.getItem("showComments")) ? new Map(JSON.parse(localStorage.getItem("showComments"))) : new Map();
+console.log(showComments);
 var comments = JSON.parse(localStorage.getItem("comments")) ? JSON.parse(localStorage.getItem("comments")) : [];
 var counter = parseInt(localStorage.getItem('counter')) ? parseInt(localStorage.getItem('counter')) : 0;
 for (let i = 0; i < elems.length; i++) {
   renderButton(i);
 }
 let commentNodes = [];
-for (let i = 0; i < comments.length; i++) {
-  commentNodes[i] = renderComment(comments[i]);
-  if (!(comments[i].parentId == "p2" || comments[i].parentId == "p1" || comments[i].parentId == "p3")) {
-    commentNodes[i].className = "dialogbox-reply";
-  }
-}
+
+renderPage();
 attachCommentsToParent();
+for (let i = 0; i < comments.length; i++) {
+  if (showComments.get(comments[i].parentId)) {
+  drawLine(comments[i].parentId);
+}}
 
 console.log(comments);
+
+function renderPage() {
+  for (let i = 0; i < comments.length; i++) {
+    commentNodes[i] = renderComment(comments[i]);
+    if (!(comments[i].parentId == "p2" || comments[i].parentId == "p1" || comments[i].parentId == "p3")) {
+      commentNodes[i].className = "dialogbox-reply";
+    }
+  }
+}
+
+function drawLine(parent) {
+  jqSimpleConnect.removeAll();
+  for (let i = 0; i < comments.length; i++) {
+    if (comments[i].parentId == parent) {
+      jqSimpleConnect.connect("#" + comments[i].parentId, "#" + comments[i].id, {radius: 1, color: 'red'});
+    }
+  }
+}
 
 function renderButton(index) {
   let commentButton = document.createElement('button');
   commentButton.innerHTML = "Add comment";
   commentButton.id = "btn" + index;
-  commentButton.className = "btn btn-success green btn-sm addCommentButton";
+  commentButton.className = "btn btn-success green btn-sm";
   elems[index].appendChild(commentButton);
   commentButton.addEventListener('click', renderCommentBox);
 }
@@ -33,7 +53,7 @@ function renderCommentBox() {
   let inputElement = document.createElement('textarea');
   inputElement.id = "input" + index;
   let buttonElement = document.createElement('button');
-  buttonElement.id = index;
+  buttonElement.id = "but" + index;
   buttonElement.innerHTML = "Post";
   buttonElement.addEventListener('click', addComment);
   buttonElement.className = "btn btn-success green btn-sm";
@@ -45,11 +65,11 @@ function renderCommentBox() {
 }
 
 function addComment() {
-  let id = this.getAttribute('id');
+  let id = this.getAttribute('id').slice(3);
   let value = document.getElementById("input" + id).value;
   let author = username();
   let parentId = this.parentNode.parentNode.parentNode.id;
-  let comment = new Comment(counter, author, value, parentId);
+  let comment = new Comment(counter, author, value, parentId, false);
   comments.push(comment);
   counter++;
   localStorage.setItem("counter", counter);
@@ -57,11 +77,12 @@ function addComment() {
   location.reload();
 }
 
-function Comment(id, author, text, parentId) {
+function Comment(id, author, text, parentId, isReply) {
   this.id = id;
   this.author = author;
   this.text = text;
   this.parentId = parentId;
+  this.isReply = isReply;
 }
 
 function username() {
@@ -103,8 +124,16 @@ function renderComment(comment) {
   commentNode.appendChild(authorDiv);
   commentNode.appendChild(textDiv);
   commentNode.appendChild(replyDiv);
-  commentNode.className = "dialogbox";
+  if (comment.parentId == "p2") {
+    commentNode.className = "dialogbox innerdiv";
+  } else {
+    commentNode.className = "dialogbox";
+  }
   commentNode.id = comment.id;
+  let show = showComments.get(comment.parentId);
+  if (show) {
+    commentNode.style.display = 'block';
+  }
   return commentNode;
 }
 
@@ -113,7 +142,7 @@ function replyToComment() {
   let value = document.getElementById("replyInput" + id).value;
   let author = username();
   let parentId = this.parentNode.parentNode.id;
-  let comment = new Comment(counter, author, value, parentId);
+  let comment = new Comment(counter, author, value, parentId, true);
   comments.push(comment);
   counter++;
   localStorage.setItem("counter", counter);
@@ -131,21 +160,20 @@ function resolveComment() {
   location.reload();
 }
 
-function hideComment(parent) {
-  for (let i = 0; i < commentNodes.length; i++) {
-    if (comments[i].parentId == parent) {
-      commentNodes[i].style.display = 'none';
-    }
-  }
-}
-
 function showComment(parent) {
+  jqSimpleConnect.removeAll();
   for (let i = 0; i < commentNodes.length; i++) {
     if (comments[i].parentId == parent) {
       commentNodes[i].style.display = 'block';
-      showComment(comments[i].id);
+      drawLine(parent);
+    } else if (!comments[i].isReply) {
+      commentNodes[i].style.display = 'none';
     }
   }
+
+  let showComments1 = new Map([...showComments].map(([k, v]) => [k, false]));
+  showComments1.set(parent, true);
+  localStorage.setItem("showComments", JSON.stringify(Array.from(showComments1.entries())));
 }
 
 function attachCommentsToParent() {
