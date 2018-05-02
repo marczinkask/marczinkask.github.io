@@ -21,7 +21,7 @@ console.log(comments);
 function renderPage() {
   for (let i = 0; i < comments.length; i++) {
     commentNodes[i] = renderComment(comments[i]);
-    if (!(comments[i].parentId == "p2" || comments[i].parentId == "p1" || comments[i].parentId == "p3")) {
+    if (!(comments[i].parentId == "p2" || comments[i].parentId == "p1" || comments[i].parentId == "p3" || comments[i].parentId == "p4")) {
       commentNodes[i].className = "dialogbox-reply";
     }
   }
@@ -134,6 +134,7 @@ function renderComment(comment) {
   if (show) {
     commentNode.style.display = 'block';
   }
+  console.log(commentNode);
   return commentNode;
 }
 
