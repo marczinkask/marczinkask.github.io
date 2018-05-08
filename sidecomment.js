@@ -1,9 +1,20 @@
 const elems = document.querySelectorAll(".commentable-section");
 const allElems = document.body.getElementsByTagName("*");
 var showComments = JSON.parse(localStorage.getItem("showComments")) ? new Map(JSON.parse(localStorage.getItem("showComments"))) : new Map();
-console.log(showComments);
 var comments = JSON.parse(localStorage.getItem("comments")) ? JSON.parse(localStorage.getItem("comments")) : [];
+comments =   comments.sort(function(a, b) {
+    let cmtA = a.parentId;
+    let cmtB = b.parentId;
+    if (cmtA < cmtB) {
+      return -1;
+    }
+    if (cmtA > cmtB) {
+      return 1;
+    }
+    return 0;
+  });
 var counter = parseInt(localStorage.getItem('counter')) ? parseInt(localStorage.getItem('counter')) : 0;
+let commentContainer = document.getElementById("comment-container");
 for (let i = 0; i < elems.length; i++) {
   renderButton(i);
 }
@@ -11,10 +22,7 @@ let commentNodes = [];
 
 renderPage();
 attachCommentsToParent();
-for (let i = 0; i < comments.length; i++) {
-  if (showComments.get(comments[i].parentId)) {
-  drawLine(comments[i].parentId);
-}}
+jqSimpleConnect.removeAll();
 
 console.log(comments);
 
@@ -27,10 +35,9 @@ function renderPage() {
   }
 }
 
-function drawLine(parent) {
-  jqSimpleConnect.removeAll();
+function drawLine(id) {
   for (let i = 0; i < comments.length; i++) {
-    if (comments[i].parentId == parent) {
+    if (comments[i].id == id) {
       jqSimpleConnect.connect("#" + comments[i].parentId, "#" + comments[i].id, {radius: 1, color: 'red'});
     }
   }
@@ -124,17 +131,14 @@ function renderComment(comment) {
   commentNode.appendChild(authorDiv);
   commentNode.appendChild(textDiv);
   commentNode.appendChild(replyDiv);
-  if (comment.parentId == "p2") {
-    commentNode.className = "dialogbox innerdiv";
-  } else {
-    commentNode.className = "dialogbox";
-  }
+  commentNode.className = "dialogbox";
   commentNode.id = comment.id;
-  let show = showComments.get(comment.parentId);
-  if (show) {
-    commentNode.style.display = 'block';
+  commentNode.onmouseover = function() {
+    drawLine(this.id);
+  };
+  commentNode.onmouseout = function() {
+    jqSimpleConnect.removeAll();
   }
-  console.log(commentNode);
   return commentNode;
 }
 
@@ -181,7 +185,11 @@ function attachCommentsToParent() {
   for (let i = 0; i < allElems.length; i++) {
     for (let j = 0; j < comments.length; j++) {
       if (allElems[i].id === comments[j].parentId) {
-        allElems[i].appendChild(commentNodes[j]);
+        if (comments[j].parentId == "p2" || comments[j].parentId == "p1" || comments[j].parentId == "p3" || comments[j].parentId == "p4") {
+          commentContainer.appendChild(commentNodes[j]);
+        } else {
+          allElems[i].appendChild(commentNodes[j]);
+        }
       }
     }
   }
